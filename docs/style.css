@@ -64,11 +64,20 @@ nav .nav-inner {
 }
 
 nav .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--brown);
   text-decoration: none;
   font-family: var(--font-mono);
+}
+
+nav .logo .logo-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  display: block;
 }
 
 nav .logo:hover {
