@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — MUDlark</title>
+  <meta name="description" content="MUDlark privacy policy. No analytics, no tracking, no ads. Your data stays on your device.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">&gt; MUDlark_</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="support.html">Support</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>Privacy Policy</h1>
+    <p class="tagline">Your privacy matters. Here's exactly what MUDlark does with your data.</p>
+  </div>
+
+  <div class="container">
+
+    <p class="last-updated">Last Updated: February 28, 2026</p>
+    <p><strong>App Name:</strong> MUDlark &nbsp;|&nbsp; <strong>Bundle ID:</strong> dbi.MUDlark &nbsp;|&nbsp; <strong>Developer:</strong> Tony Mace</p>
+
+    <section class="policy-section">
+      <h2>Overview</h2>
+      <p>MUDlark is a MUD (Multi-User Dungeon) client for iOS that connects to third-party MUD game servers. We are committed to protecting your privacy. This policy explains what data the app collects, how it is used, and your rights regarding that data.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Data Collection &amp; Usage</h2>
+
+      <h3>Data Stored on Your Device Only</h3>
+      <p>The following data is stored locally on your device and is <strong>never transmitted</strong> to us:</p>
+      <ul>
+        <li><strong>World/Server Configurations</strong> — Saved MUD server addresses, ports, and connection preferences (stored in UserDefaults).</li>
+        <li><strong>Triggers, Aliases, and Timers</strong> — Automation rules you create, stored per-world in UserDefaults.</li>
+        <li><strong>App Settings</strong> — Preferences such as font size, font family, input options, joystick configuration, and display settings (stored in UserDefaults).</li>
+        <li><strong>Session Logs</strong> — If you enable auto-logging, session transcripts are saved as text files on your device. These logs never leave your device unless you explicitly share or export them.</li>
+        <li><strong>Command History</strong> — Recent commands entered during a session, stored locally.</li>
+        <li><strong>Scrollback Buffer</strong> — Text received from MUD servers is held in memory during your session and is not persisted after the app is closed (unless logging is enabled).</li>
+      </ul>
+
+      <h3>Data Stored in the iOS Keychain</h3>
+      <ul>
+        <li><strong>Cryptographic Signing Key</strong> — An Ed25519 private key used for authentication with the optional MUDlark proxy server. This key is generated on your device and stored securely in the iOS Keychain. It is never transmitted; only the corresponding public key is shared with the proxy server during registration.</li>
+      </ul>
+
+      <h3>Data Associated with Your Identity</h3>
+      <ul>
+        <li><strong>User ID</strong> — A randomly generated UUID created on first launch. This ID is used solely to identify your device when connecting to the optional MUDlark proxy server. It is not linked to your name, email, Apple ID, or any other personally identifiable information.</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>Optional Proxy Server</h2>
+      <p>MUDlark offers an optional proxy relay server that maintains your MUD connection when the app is backgrounded or suspended by iOS. If you choose to use this feature:</p>
+
+      <h3>Data the Proxy Server Processes</h3>
+      <ul>
+        <li><strong>MUD Traffic</strong> — Text sent between you and the MUD server is relayed through the proxy. This data exists <strong>only in memory</strong> and is buffered temporarily until delivered to your device. It is <strong>not logged or stored persistently</strong> on the server.</li>
+        <li><strong>Connection Metadata</strong> — The server records your User ID and timestamps for connection and disconnection events for operational purposes (e.g., debugging connection issues).</li>
+      </ul>
+
+      <h3>Data the Proxy Server Does NOT Collect</h3>
+      <ul>
+        <li>No message content or MUD session data is logged or stored on disk.</li>
+        <li>No IP address logging beyond standard server access patterns.</li>
+        <li>No analytics, tracking, or profiling of user behavior.</li>
+        <li>No advertising identifiers or third-party tracking SDKs.</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>Third-Party MUD Servers</h2>
+      <p>When you connect to a MUD game server (directly or via the proxy), your data is transmitted to that third-party server. Each MUD server has its own privacy practices, which are outside our control. We recommend reviewing the privacy policy of any MUD server you connect to. MUDlark does not control, monitor, or log your interactions with third-party MUD servers.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Data Sharing</h2>
+      <p>We do <strong>not</strong> sell, share, rent, or trade your personal data with any third parties. No data is shared with advertising networks, analytics providers, or data brokers.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Analytics &amp; Tracking</h2>
+      <p>MUDlark does <strong>not</strong> include any analytics frameworks, crash reporting services, or third-party tracking SDKs. We do not collect usage statistics, device information, or behavioral data.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Notifications</h2>
+      <p>MUDlark may request permission to send local notifications. These notifications are generated entirely on your device (e.g., trigger-based alerts, connection timeout warnings) and do not involve any external notification service beyond Apple Push Notification service (APNs) when used with the optional proxy server for push notifications.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Data Retention</h2>
+      <ul>
+        <li><strong>On-device data</strong> (settings, triggers, logs) persists until you delete the app or manually clear the data.</li>
+        <li><strong>Proxy server connection metadata</strong> (User ID, connect/disconnect timestamps) is retained for operational purposes.</li>
+        <li><strong>Proxy server MUD traffic buffer</strong> is held in memory only and is discarded once delivered or when the session ends.</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>Data Deletion</h2>
+      <ul>
+        <li><strong>On-device data:</strong> Uninstalling MUDlark removes all locally stored data, including UserDefaults, Keychain entries, and session logs.</li>
+        <li><strong>Proxy server data:</strong> You may request deletion of your User ID and associated connection metadata by contacting us at the email below. You can also reset your proxy identity within the app, which generates a new User ID and cryptographic key.</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>Security</h2>
+      <ul>
+        <li>Cryptographic keys are stored in the iOS Keychain with <code>kSecAttrAccessibleAfterFirstUnlock</code> protection.</li>
+        <li>Proxy server connections use WebSocket over TLS (WSS) with JWT-based authentication using Ed25519 challenge/response signing.</li>
+        <li>Direct MUD connections use TCP; TLS is available on a per-world basis where supported by the MUD server.</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>Children's Privacy</h2>
+      <p>MUDlark is not directed at children under the age of 13. We do not knowingly collect personal information from children. If you believe a child has provided data through the app, please contact us so we can take appropriate action.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Changes to This Policy</h2>
+      <p>We may update this privacy policy from time to time. Changes will be reflected by the "Last Updated" date at the top of this document. Continued use of the app after changes constitutes acceptance of the updated policy.</p>
+    </section>
+
+    <section class="policy-section">
+      <h2>Your Rights</h2>
+      <p>Depending on your jurisdiction, you may have the right to:</p>
+      <ul>
+        <li>Access the personal data we hold about you.</li>
+        <li>Request deletion of your data.</li>
+        <li>Opt out of any data processing (though MUDlark processes minimal data by design).</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <h2>Contact</h2>
+      <p>If you have questions or concerns about this privacy policy or your data, please contact:</p>
+      <p><strong>Email:</strong> <a href="mailto:mudlarkmudclient@gmail.com">mudlarkmudclient@gmail.com</a></p>
+    </section>
+
+    <p><em>This privacy policy applies to the MUDlark iOS application (bundle ID: dbi.MUDlark) available on the Apple App Store.</em></p>
+
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="support.html">Support</a>
+      <a href="privacy.html">Privacy Policy</a>
+    </div>
+    <p>&copy; 2026 Tony Mace. MUDlark is not affiliated with any MUD server.</p>
+  </footer>
+
+</body>
+</html>
