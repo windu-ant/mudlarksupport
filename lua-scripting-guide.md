@@ -48,6 +48,7 @@ The biggest difference between mudlet's scripting and MUDlark's is that you stor
 The second biggest difference is the lack of built in functions. While I've added some like selectstring, echo, etc, there is not support for geyser windows and other items like that. There are specific functions for printing to the floating windows in MUDlark however. 
 
 If there is a function or feature in the Lua engine that you would like, please drop into the discord or email me and I'll do my best to provide it. There are some limitations to how Lua is sandboxed within the app as to be restricted from writing to files within the iOS ecosystem. 
+
 ---
 
 ## Getting Started - Scripts
