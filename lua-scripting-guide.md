@@ -43,6 +43,11 @@ MUDlark runs a sandboxed Lua 5.4 VM per world connection. The engine:
 
 The API follows Mudlet naming conventions where possible, so community resources and existing Mudlet scripts are a good reference even if they don't transfer 100%.
 
+The biggest difference between mudlet's scripting and MUDlark's is that you store variables like 'vars.test = value' instead of using something like 'local test = value'.
+
+The second biggest difference is the lack of built in functions. While I've added some like selectstring, echo, etc, there is not support for geyser windows and other items like that. There are specific functions for printing to the floating windows in MUDlark however. 
+
+If there is a function or feature in the Lua engine that you would like, please drop into the discord or email me and I'll do my best to provide it. There are some limitations to how Lua is sandboxed within the app as to be restricted from writing to files within the iOS ecosystem. 
 ---
 
 ## Getting Started - Scripts
@@ -580,7 +585,7 @@ Each Lua VM is capped at **50 MB** of memory by default. You can adjust this in 
 
 ### Infinite loops
 
-There is no instruction-count safety net in the current build. A Lua script with an infinite loop (`while true do end`) **will hang the app**. If this happens, force-quit and reopen MUDlark - the world editor lets you edit or disable the offending script before reconnecting.
+There is no instruction-count safety net in the current build. A Lua script with an infinite loop (`while true do end`) **will hang the app**. If this happens, force-quit and reopen MUDlark - long press to edit your world and turn off "auto-login on fresh connect", then select your world/mud and remove the offending program.
 
 Always use timers instead of `while` loops for repeated work:
 
