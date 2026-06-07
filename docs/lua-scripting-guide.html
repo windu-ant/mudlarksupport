@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lua Scripting Guide — MUDlark</title>
+  <meta name="description" content="Complete MUDlark Lua scripting guide covering scripts, triggers, timers, aliases, APIs, GMCP, and sandbox behavior.">
+  <link rel="icon" type="image/png" href="MUDlark_icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo"><img src="MUDlark_icon.png" alt="" class="logo-icon" width="36" height="36">&gt; MUDlark_</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="self-host.html">Self-Host</a></li>
+        <li><a href="support.html">Support</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section>
+      <div class="markdown-doc">
+<h1 id="mudlark-lua-scripting-guide">MUDlark Lua Scripting Guide</h1>
+<p>MUDlark includes a built-in Lua scripting engine modelled closely after Mudlet. If you've written scripts for Mudlet, most of what you already know will work here. This guide covers everything from your first script to wiring triggers, timers, and aliases into Lua.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#getting-started-scripts">Getting Started - Scripts</a></li>
+<li><a href="#the-lua-console">The Lua Console</a></li>
+<li><a href="#lua-in-triggers">Lua in Triggers</a></li>
+<li><a href="#lua-in-timers">Lua in Timers</a></li>
+<li><a href="#lua-in-aliases">Lua in Aliases</a></li>
+<li><a href="#api-reference">API Reference</a><ul>
+<li><a href="#sending-commands">Sending Commands</a></li>
+<li><a href="#output">Output</a></li>
+<li><a href="#trigger-control">Triggers</a></li>
+<li><a href="#timer-control">Timers</a></li>
+<li><a href="#alias-control">Aliases</a></li>
+<li><a href="#shortcut-pads">Shortcut Pads</a></li>
+<li><a href="#gmcp">GMCP</a></li>
+<li><a href="#info-panel-floating-windows">Info Panel &amp; Floating Windows</a></li>
+</ul>
+</li>
+<li><a href="#built-in-variables">Built-in Variables</a><ul>
+<li><a href="#line-and-matches">line and matches</a></li>
+<li><a href="#vars-persistent-variables">vars - Persistent Variables</a></li>
+<li><a href="#msdp-msdp-data">msdp - MSDP Data</a></li>
+<li><a href="#gmcp-gmcp-data">gmcp - GMCP Data</a></li>
+</ul>
+</li>
+<li><a href="#the-gmcp-event-handler">The GMCP Event Handler</a></li>
+<li><a href="#color-codes-in-cecho">Color Codes in cecho</a></li>
+<li><a href="#sandbox-and-limitations">Sandbox and Limitations</a></li>
+<li><a href="#examples">Examples</a></li>
+</ol>
+<hr />
+<h2 id="overview">Overview</h2>
+<p>MUDlark runs a sandboxed Lua 5.4 VM per world connection. The engine:</p>
+<ul>
+<li>Starts automatically when you connect to a world.</li>
+<li>Runs any scripts marked <strong>Autorun on Connect</strong> before the first trigger can fire.</li>
+<li>Shares one VM across all your scripts, triggers, timers, and aliases - so functions defined in a Script are available to your triggers.</li>
+<li>Tears down cleanly when you disconnect.</li>
+</ul>
+<p>The API follows Mudlet naming conventions where possible, so community resources and existing Mudlet scripts are a good reference even if they don't transfer 100%.</p>
+<p>The biggest difference between mudlet's scripting and MUDlark's is that you store variables like 'vars.test = value' instead of using something like 'local test = value'.</p>
+<p>The second biggest difference is the lack of built in functions. While I've added some like selectstring, echo, etc, there is not support for geyser windows and other items like that. There are specific functions for printing to the floating windows in MUDlark however. </p>
+<p>If there is a function or feature in the Lua engine that you would like, please drop into the discord or email me and I'll do my best to provide it. There are some limitations to how Lua is sandboxed within the app as to be restricted from writing to files within the iOS ecosystem. </p>
+<hr />
+<h2 id="getting-started-scripts">Getting Started - Scripts</h2>
+<p>Scripts are standalone Lua files tied to a world. Use them to define helper functions, set up initial state, or run any code that should run at connect time.</p>
+<h3 id="creating-a-script">Creating a Script</h3>
+<ol>
+<li>Connect to (or just select) a world.</li>
+<li>Open the <strong>world menu</strong> (⋯ or gear icon) and tap <strong>Lua Scripts</strong>.</li>
+<li>Tap <strong>+</strong> to create a new script.</li>
+<li>Give it a name, paste or type your Lua source, and choose whether it should:<ul>
+<li><strong>Be enabled</strong> - disabled scripts are skipped entirely.</li>
+<li><strong>Run automatically on connect</strong> - the script runs before triggers begin processing, so any functions or globals it defines are immediately available.</li>
+</ul>
+</li>
+<li>Tap <strong>Save</strong>.</li>
+</ol>
+<h3 id="running-a-script-manually">Running a Script Manually</h3>
+<p>From the script editor, tap <strong>Run Now</strong> while connected. Output from <code>echo()</code> and <code>print()</code> appears in the main scrollback as system lines. Errors appear in red.</p>
+<h3 id="script-execution-order">Script Execution Order</h3>
+<p>Autorun scripts execute in the order they appear in the list (drag to reorder). If script B calls a function defined in script A, make sure A appears above B in the list.</p>
+<hr />
+<h2 id="the-lua-console">The Lua Console</h2>
+<p>The Lua Console is an interactive REPL - type a Lua expression or statement, hit the send button, and see the result immediately. It shares the same VM as your scripts, so you can call functions you defined there, inspect <code>vars</code>, and test expressions before adding them to a trigger.</p>
+<p><strong>Opening it:</strong> world menu → <strong>Lua Console</strong>.</p>
+<p>The console is available only while connected (the Lua engine is active). If you open it while disconnected you'll see a notice to connect first.</p>
+<table>
+<thead>
+<tr>
+<th>Prompt</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&gt;</code></td>
+<td>Your input</td>
+</tr>
+<tr>
+<td><code>=</code></td>
+<td>Return value of an expression</td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>Error</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-session">Example session</h3>
+<pre><code>&gt; vars.hp
+= 95
+&gt; msdp.HEALTH
+= 95
+&gt; send(&quot;health&quot;)
+(command sent to MUD)
+&gt; 2 + 2
+= 4
+</code></pre>
+<hr />
+<h2 id="lua-in-triggers">Lua in Triggers</h2>
+<p>Any trigger action can be set to <strong>Run Lua Script</strong>. When the trigger fires, MUDlark runs the Lua code in the action field with the matched line and captures available as <code>line</code> and <code>matches</code>.</p>
+<h3 id="adding-a-lua-action-to-a-trigger">Adding a Lua action to a trigger</h3>
+<ol>
+<li>Open <strong>Triggers</strong> from the world menu.</li>
+<li>Create or edit a trigger.</li>
+<li>In the Actions section, add an action and change the type to <strong>Run Lua Script</strong> (look for the <code>{}</code> curly-braces icon).</li>
+<li>Type your Lua in the text area that appears.</li>
+<li>Save the trigger.</li>
+</ol>
+<h3 id="available-context-variables">Available context variables</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>line</code></td>
+<td>The full matched line from the MUD</td>
+</tr>
+<tr>
+<td><code>matches[1]</code></td>
+<td>The entire match (same as <code>line</code> for simple patterns)</td>
+</tr>
+<tr>
+<td><code>matches[2]</code></td>
+<td>First wildcard or regex capture group</td>
+</tr>
+<tr>
+<td><code>matches[3]</code></td>
+<td>Second wildcard or regex capture group</td>
+</tr>
+<tr>
+<td><code>matches[n]</code></td>
+<td>…and so on</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note:</strong> MUDlark uses 1-based indexing for <code>matches</code>, the same as Mudlet. <code>matches[1]</code> is always the full match.</p>
+</blockquote>
+<h3 id="example-announce-health-on-a-vitals-line">Example - announce health on a vitals line</h3>
+<p>Pattern: <code>Your health is * and your mana is *.</code> (simple pattern, two wildcards)</p>
+<pre><code class="language-lua">local hp = matches[2]
+local mp = matches[3]
+echo(&quot;HP: &quot; .. hp .. &quot;  MP: &quot; .. mp)
+</code></pre>
+<h3 id="example-enable-a-follow-up-trigger-when-combat-starts">Example - enable a follow-up trigger when combat starts</h3>
+<p>Pattern: <code>You begin combat with *.</code> (regex: <code>You begin combat with (.+)\.</code>)</p>
+<pre><code class="language-lua">vars.target = matches[2]
+enableTrigger(&quot;CombatRound&quot;)
+echo(&quot;{GREEN}Target: &quot; .. vars.target .. &quot;{RESET}&quot;)
+</code></pre>
+<hr />
+<h2 id="lua-in-timers">Lua in Timers</h2>
+<p>Timer actions can also be set to <strong>Run Lua Script</strong>. The code runs on every tick. There is no <code>line</code> or <code>matches</code> context (timers aren't triggered by MUD output), but everything else - <code>vars</code>, <code>msdp</code>, <code>gmcp</code>, helper functions - is available.</p>
+<h3 id="example-send-a-keep-alive-every-60-seconds">Example - send a keep-alive every 60 seconds</h3>
+<p>Create a timer with interval <strong>60 seconds</strong> and one <strong>Run Lua Script</strong> action:</p>
+<pre><code class="language-lua">sendRaw(&quot;\n&quot;)
+</code></pre>
+<h3 id="creating-timers-from-lua">Creating timers from Lua</h3>
+<p>You can also create timers dynamically from scripts or trigger code using <code>createTimer()</code>:</p>
+<pre><code class="language-lua">-- Fire once after 5 seconds
+createTimer(&quot;PostConnect&quot;, 5, [[
+    send(&quot;look&quot;)
+    disableTimer(&quot;PostConnect&quot;)
+]], true)
+</code></pre>
+<p>See <a href="#timer-control"><code>createTimer</code></a> in the API reference for the full signature.</p>
+<hr />
+<h2 id="lua-in-aliases">Lua in Aliases</h2>
+<p>Aliases can optionally run a Lua script instead of sending their replacement text. Enable this by checking <strong>Run Lua script instead of sending replacement</strong> in the alias editor.</p>
+<p>When a Lua alias fires:</p>
+<ul>
+<li>The replacement text is <strong>not</strong> sent to the server. Your Lua code is responsible for sending anything it needs to.</li>
+<li><code>matches[1]</code> is the full input line; <code>matches[2]</code>, <code>matches[3]</code>, etc. are the wildcard captures (same convention as triggers).</li>
+</ul>
+<h3 id="example-a-smart-attack-alias">Example - a smart attack alias</h3>
+<p>Pattern: <code>att *</code></p>
+<pre><code class="language-lua">local target = matches[2]
+if target == &quot;&quot; then
+    echo(&quot;Usage: att &lt;target&gt;&quot;)
+else
+    vars.target = target
+    send(&quot;attack &quot; .. target)
+    echo(&quot;{YELLOW}Attacking &quot; .. target .. &quot;{RESET}&quot;)
+end
+</code></pre>
+<hr />
+<h2 id="api-reference">API Reference</h2>
+<h3 id="sending-commands">Sending Commands</h3>
+<pre><code class="language-lua">send(text)
+</code></pre>
+<p>Sends <code>text</code> to the MUD as if you typed it. Alias processing runs normally.</p>
+<pre><code class="language-lua">sendRaw(text)
+</code></pre>
+<p>Sends <code>text</code> directly to the server with no newline appended and no alias processing. Useful for keep-alives or protocol-level bytes.</p>
+<hr />
+<h3 id="output">Output</h3>
+<pre><code class="language-lua">echo(text)
+</code></pre>
+<p>Prints plain text to the main scrollback as a system line (grey, no highlighting). Equivalent to Mudlet's <code>echo()</code>.</p>
+<pre><code class="language-lua">cecho(text)
+</code></pre>
+<p>Prints colored text to the main scrollback. Supports MUDlark color codes - see <a href="#color-codes-in-cecho">Color Codes in cecho</a>.</p>
+<pre><code class="language-lua">print(...)
+</code></pre>
+<p>Standard Lua <code>print</code>. MUDlark routes it through <code>echo()</code>, joining arguments with a tab character. Convenient for quick debugging.</p>
+<pre><code class="language-lua">wait(seconds)
+</code></pre>
+<p>Suspends the current script for <code>seconds</code> seconds (fractional values like <code>0.5</code> are fine), then resumes exactly where it left off. <strong>Does not block the MUD</strong> - the app remains fully responsive during the wait. Other triggers, timers, and even the same trigger firing again all continue to run independently.</p>
+<blockquote>
+<p><strong>Note:</strong> <code>wait()</code> can only be used inside a trigger, timer, alias, or standalone script. Calling it in the Lua Console will produce an error.</p>
+</blockquote>
+<pre><code class="language-lua">-- Example: send a command, wait 2 seconds, send another
+send(&quot;cast recall&quot;)
+wait(2)
+send(&quot;north&quot;)
+</code></pre>
+<pre><code class="language-lua">appendToPanel(text)
+</code></pre>
+<p>Appends a line to the Info Panel. Supports color codes.</p>
+<pre><code class="language-lua">appendToFloatingWindow(index, text)
+</code></pre>
+<p>Appends a line to one of the four floating windows (0-indexed: <code>0</code>–<code>3</code>). Supports color codes.</p>
+<hr />
+<h3 id="trigger-control">Trigger Control</h3>
+<pre><code class="language-lua">enableTrigger(name)
+disableTrigger(name)
+deleteTrigger(name)
+</code></pre>
+<p>Enables, disables, or permanently removes the trigger with the given name. The name must match exactly what you typed in the trigger's <strong>Name</strong> field.</p>
+<hr />
+<h3 id="timer-control">Timer Control</h3>
+<pre><code class="language-lua">enableTimer(name)
+disableTimer(name)
+deleteTimer(name)
+</code></pre>
+<p>Enables, disables, or removes a timer by name.</p>
+<pre><code class="language-lua">createTimer(name, intervalSeconds, code, repeating)
+</code></pre>
+<p>Creates a new timer at runtime.</p>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Unique identifier for this timer</td>
+</tr>
+<tr>
+<td><code>intervalSeconds</code></td>
+<td>number</td>
+<td>Seconds between ticks (minimum 0.05)</td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td>string</td>
+<td>Lua source code to run on each tick (as a string, not a function reference)</td>
+</tr>
+<tr>
+<td><code>repeating</code></td>
+<td>boolean</td>
+<td><code>true</code> to repeat; <code>false</code> to fire once. Defaults to <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Important:</strong> <code>code</code> must be a <strong>string</strong> containing Lua source, not a function value. Use a long-bracket string <code>[[ ... ]]</code> to avoid quote escaping issues.</p>
+</blockquote>
+<pre><code class="language-lua">-- Repeat every 30 seconds
+createTimer(&quot;HealCheck&quot;, 30, [[
+    if msdp.HEALTH and tonumber(msdp.HEALTH) &lt; 50 then
+        send(&quot;quaff healing&quot;)
+    end
+]], true)
+</code></pre>
+<p>Calling <code>createTimer</code> with a name that already exists replaces the old timer.</p>
+<hr />
+<h3 id="alias-control">Alias Control</h3>
+<pre><code class="language-lua">enableAlias(name)
+disableAlias(name)
+deleteAlias(name)
+</code></pre>
+<p>Enable, disable, or remove an alias by name.</p>
+<hr />
+<h3 id="shortcut-pads">Shortcut Pads</h3>
+<pre><code class="language-lua">switchPadSet(name)
+</code></pre>
+<p>Switches the visible shortcut pad layout to the pad set named <code>name</code>. Matching is case-insensitive. Returns <code>true</code> if the pad set exists and was activated, or <code>false</code> if no matching pad set was found.</p>
+<pre><code class="language-lua">if msdp.HEALTH and tonumber(msdp.HEALTH) &lt; 40 then
+    switchPadSet(&quot;Emergency&quot;)
+else
+    switchPadSet(&quot;Combat&quot;)
+end
+</code></pre>
+<hr />
+<h3 id="gmcp">GMCP</h3>
+<pre><code class="language-lua">sendGMCP(package, data)
+</code></pre>
+<p>Sends a GMCP message to the server. <code>data</code> is an optional JSON string.</p>
+<pre><code class="language-lua">sendGMCP(&quot;Core.Ping&quot;, nil)
+sendGMCP(&quot;Char.Login&quot;, '{&quot;name&quot;:&quot;Elara&quot;,&quot;password&quot;:&quot;hunter2&quot;}')
+</code></pre>
+<hr />
+<h3 id="timing">Timing</h3>
+<pre><code class="language-lua">wait(seconds)
+</code></pre>
+<p>Suspends the script for <code>seconds</code> seconds (fractions like <code>0.25</code> and <code>0.5</code> are supported), then resumes from the same point. The main thread is never blocked - the MUD client remains fully responsive during the wait, and multiple scripts can be waiting simultaneously without interfering with each other.</p>
+<pre><code class="language-lua">-- Send three commands with a delay between each
+send(&quot;drink potion&quot;)
+wait(1)
+echo(&quot;{GREEN}Potion consumed.{RESET}\n&quot;)
+wait(0.5)
+send(&quot;say Refreshing!&quot;)
+</code></pre>
+<blockquote>
+<p><code>wait()</code> is only valid inside a trigger/timer/alias/script. Calling it from the Lua Console will error.</p>
+</blockquote>
+<hr />
+<h3 id="line-highlighting-selectstring-fg-bg">Line Highlighting (selectString / fg / bg)</h3>
+<p>These functions let you recolour specific text on the trigger line that fired the script - useful for highlighting important words without changing the rest of the line.</p>
+<pre><code class="language-lua">selectString([windowName,] text, occurrence)
+</code></pre>
+<p>Selects a substring of the current trigger line. <code>occurrence</code> is 1-based, so <code>1</code> selects the first match, <code>2</code> the second, etc. <code>windowName</code> is accepted but ignored (MUDlark has one main window). Returns the 0-based character position of the match, or <code>-1</code> if the text was not found.</p>
+<pre><code class="language-lua">deselect()
+</code></pre>
+<p>Clears the active selection so subsequent <code>fg()</code>/<code>bg()</code> calls are no-ops.</p>
+<pre><code class="language-lua">fg(color)
+</code></pre>
+<p>Sets the <strong>foreground</strong> (text) color of the current selection. <code>color</code> can be a name string or a bare ANSI index (0–255).</p>
+<pre><code class="language-lua">bg(color)
+</code></pre>
+<p>Sets the <strong>background</strong> color of the current selection. Same color argument as <code>fg()</code>.</p>
+<p><strong>Supported color names:</strong> <code>black</code>, <code>red</code>, <code>green</code>, <code>yellow</code>, <code>blue</code>, <code>magenta</code>, <code>cyan</code>, <code>white</code>, <code>bright_black</code> / <code>gray</code>, <code>bright_red</code> / <code>light_red</code>, <code>bright_green</code>, <code>bright_yellow</code>, <code>bright_blue</code>, <code>bright_magenta</code> / <code>pink</code>, <code>bright_cyan</code>, <code>bright_white</code>, <code>orange</code> (214), <code>brown</code> (130), <code>purple</code> (5). Any ANSI 256-color index (0–255) is also accepted.</p>
+<pre><code class="language-lua">-- Colour &quot;big monster&quot; red whenever it appears
+if selectString(&quot;big monster&quot;, 1) &gt; -1 then
+    fg(&quot;red&quot;)
+end
+
+-- Highlight the second occurrence of &quot;Bob&quot; in yellow on cyan
+if selectString(&quot;Bob&quot;, 2) &gt; -1 then
+    fg(&quot;bright_yellow&quot;)
+    bg(&quot;cyan&quot;)
+end
+</code></pre>
+<pre><code class="language-lua">replace(text)
+</code></pre>
+<p>Replaces the current <code>selectString</code> selection with <code>text</code>. Color codes (<code>{RED}</code>, <code>{#RRGGBB}</code>, etc.) are supported inline. There is no separate <code>creplace()</code>. After the replacement the selection is cleared.</p>
+<pre><code class="language-lua">deleteLine()
+</code></pre>
+<p>Removes the current trigger line from scrollback entirely. Useful for suppressing spam lines or filtering sensitive output.</p>
+<pre><code class="language-lua">-- Replace a matched word in-line with a colored version
+if selectString(matches[2], 1) &gt; -1 then
+    replace(&quot;{BRIGHT_YELLOW}&quot; .. matches[2] .. &quot;{RESET}&quot;)
+end
+
+-- Delete lines containing a spam pattern entirely
+deleteLine()
+</code></pre>
+<blockquote>
+<p><code>selectString</code>, <code>fg</code>, <code>bg</code>, <code>replace</code>, and <code>deleteLine</code> only operate on the line that triggered the current script. They have no effect in timer scripts or the Lua Console (no trigger line exists in those contexts).</p>
+</blockquote>
+<hr />
+<h3 id="info-panel-floating-windows">Info Panel &amp; Floating Windows</h3>
+<pre><code class="language-lua">appendToPanel(text)
+</code></pre>
+<p>Appends to the right-side Info Panel. Color codes supported.</p>
+<pre><code class="language-lua">clearPanel()
+</code></pre>
+<p>Clears the right-side Info Panel.</p>
+<pre><code class="language-lua">appendToFloatingWindow(index, text)
+</code></pre>
+<p>Appends to floating window <code>index</code> (0 = Window 1, 1 = Window 2, 2 = Window 3, 3 = Window 4). Color codes supported.</p>
+<pre><code class="language-lua">clearFloatingWindow(index)
+</code></pre>
+<p>Clears floating window <code>index</code> (0 = Window 1, 1 = Window 2, 2 = Window 3, 3 = Window 4).</p>
+<hr />
+<h2 id="built-in-variables">Built-in Variables</h2>
+<h3 id="line-and-matches">line and matches</h3>
+<p>These are set automatically before a trigger's Lua code runs.</p>
+<pre><code class="language-lua">line       -- The full text of the matched MUD line
+matches[1] -- Full match (equals line for simple patterns)
+matches[2] -- First wildcard or regex capture
+matches[3] -- Second wildcard or regex capture
+-- etc.
+</code></pre>
+<p>In timers and standalone scripts these are empty (<code>line = ""</code>, <code>matches = {}</code>).</p>
+<hr />
+<h3 id="vars-persistent-variables">vars - Persistent Variables</h3>
+<p><code>vars</code> is a key-value table that persists across sessions for the current world. Use it to remember state between connects, share data between triggers, or track cooldowns.</p>
+<pre><code class="language-lua">-- Set a value (saved automatically)
+vars.lastRoom = &quot;The Dark Forest&quot;
+vars.potionsUsed = tostring(3)
+
+-- Read it back
+echo(vars.lastRoom)
+echo(&quot;Potions used: &quot; .. (vars.potionsUsed or &quot;0&quot;))
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>vars</code> stores only <strong>string</strong> values. Convert numbers with <code>tostring()</code> when writing and <code>tonumber()</code> when reading.</p>
+</blockquote>
+<p>Values are debounce-saved (2 seconds after the last write) so rapid mutations in a trigger loop are batched into one disk write.</p>
+<hr />
+<h3 id="msdp-msdp-data">msdp - MSDP Data</h3>
+<p><code>msdp</code> is a read-only table populated automatically from MSDP variables sent by the server. Variable names match exactly what the server sends (usually all-caps).</p>
+<pre><code class="language-lua">echo(&quot;HP:  &quot; .. (msdp.HEALTH or &quot;?&quot;) .. &quot;/&quot; .. (msdp.MAX_HEALTH or &quot;?&quot;))
+echo(&quot;MP:  &quot; .. (msdp.MANA or &quot;?&quot;) .. &quot;/&quot; .. (msdp.MAX_MANA or &quot;?&quot;))
+echo(&quot;Room: &quot; .. (msdp.ROOM_NAME or &quot;unknown&quot;))
+</code></pre>
+<p>If the server sends a complex value (array or object), <code>msdp.&lt;var&gt;</code> contains the raw JSON string.</p>
+<hr />
+<h3 id="gmcp-gmcp-data">gmcp - GMCP Data</h3>
+<p><code>gmcp</code> is a read-only table keyed by full GMCP package name. The value is the raw JSON string the server sent for that package.</p>
+<pre><code class="language-lua">local raw = gmcp[&quot;Char.Vitals&quot;]   -- e.g. '{&quot;hp&quot;:95,&quot;mp&quot;:82}'
+if raw then
+    -- parse it yourself if you need individual fields
+    echo(raw)
+end
+</code></pre>
+<blockquote>
+<p><strong>Heads up:</strong> <code>gmcp[&lt;package&gt;]</code> gives you the raw JSON string, not a pre-parsed table. Use the standard <code>json</code> pattern below or a simple <code>string.match</code> for simple extractions.</p>
+</blockquote>
+<hr />
+<h2 id="the-gmcp-event-handler">The GMCP Event Handler</h2>
+<p>Define a global function called <code>gmcpHandler</code> and it will be called automatically every time a GMCP message arrives, <strong>in addition</strong> to your triggers and GMCP Actions.</p>
+<pre><code class="language-lua">function gmcpHandler(package, json)
+    if package == &quot;Char.Vitals&quot; then
+        -- Quick-and-dirty extraction
+        local hp = json:match('&quot;hp&quot;%s*:%s*(%d+)')
+        if hp then
+            vars.lastHP = hp
+        end
+    end
+end
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>package</code></td>
+<td>GMCP package name, e.g. <code>"Char.Vitals"</code></td>
+</tr>
+<tr>
+<td><code>json</code></td>
+<td>Raw JSON string the server sent</td>
+</tr>
+</tbody>
+</table>
+<p>The handler is called inside a <code>pcall</code> so a Lua error in your handler won't break GMCP processing - it will appear as a red error line instead.</p>
+<hr />
+<h2 id="color-codes-in-cecho">Color Codes in cecho</h2>
+<p><code>cecho()</code> and <code>appendToPanel()</code>/<code>appendToFloatingWindow()</code> support MUDlark color codes:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Color</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{RED}</code></td>
+<td>Red</td>
+</tr>
+<tr>
+<td><code>{GREEN}</code></td>
+<td>Green</td>
+</tr>
+<tr>
+<td><code>{BLUE}</code></td>
+<td>Blue</td>
+</tr>
+<tr>
+<td><code>{YELLOW}</code></td>
+<td>Yellow</td>
+</tr>
+<tr>
+<td><code>{CYAN}</code></td>
+<td>Cyan</td>
+</tr>
+<tr>
+<td><code>{MAGENTA}</code></td>
+<td>Magenta</td>
+</tr>
+<tr>
+<td><code>{WHITE}</code></td>
+<td>White</td>
+</tr>
+<tr>
+<td><code>{BRIGHT_RED}</code></td>
+<td>Bright red</td>
+</tr>
+<tr>
+<td><code>{BRIGHT_GREEN}</code></td>
+<td>Bright green</td>
+</tr>
+<tr>
+<td><code>{BRIGHT_BLUE}</code></td>
+<td>Bright blue</td>
+</tr>
+<tr>
+<td><code>{BRIGHT_YELLOW}</code></td>
+<td>Bright yellow</td>
+</tr>
+<tr>
+<td><code>{BRIGHT_CYAN}</code></td>
+<td>Bright cyan</td>
+</tr>
+<tr>
+<td><code>{BRIGHT_WHITE}</code></td>
+<td>Bright white</td>
+</tr>
+<tr>
+<td><code>{#RRGGBB}</code></td>
+<td>Any hex color, e.g. <code>{#FF8800}</code></td>
+</tr>
+<tr>
+<td><code>{RESET}</code></td>
+<td>Return to default color</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-lua">cecho(&quot;{GREEN}You healed for &quot; .. amount .. &quot; HP.{RESET}&quot;)
+cecho(&quot;{#FF8800}[Combat]{RESET} &quot; .. vars.target .. &quot; hits you!&quot;)
+</code></pre>
+<hr />
+<h2 id="sandbox-and-limitations">Sandbox and Limitations</h2>
+<p>MUDlark runs Lua in a restricted sandbox for security and stability.</p>
+<h3 id="whats-available">What's available</h3>
+<p>Standard safe libraries: <code>math</code>, <code>string</code>, <code>table</code>, <code>coroutine</code>, <code>utf8</code>, <code>tostring</code>, <code>tonumber</code>, <code>ipairs</code>, <code>pairs</code>, <code>pcall</code>, <code>xpcall</code>, <code>select</code>, <code>type</code>, <code>unpack</code>.</p>
+<h3 id="whats-blocked">What's blocked</h3>
+<p>The following are <strong>not</strong> available in scripts:</p>
+<table>
+<thead>
+<tr>
+<th>Blocked</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>os.*</code></td>
+<td>File system and process access</td>
+</tr>
+<tr>
+<td><code>io.*</code></td>
+<td>File I/O</td>
+</tr>
+<tr>
+<td><code>debug.*</code></td>
+<td>VM internals</td>
+</tr>
+<tr>
+<td><code>load</code>, <code>loadstring</code>, <code>dofile</code>, <code>loadfile</code></td>
+<td>Dynamic code loading</td>
+</tr>
+<tr>
+<td><code>require</code></td>
+<td>Package loading</td>
+</tr>
+</tbody>
+</table>
+<p>Attempting to use any of these will result in a runtime error.</p>
+<h3 id="memory-limit">Memory limit</h3>
+<p>Each Lua VM is capped at <strong>50 MB</strong> of memory by default. You can adjust this in <strong>Settings → Lua Memory Limit</strong>. Scripts that allocate beyond this limit will receive a runtime error rather than crashing the app.</p>
+<h3 id="infinite-loops">Infinite loops</h3>
+<p>There is no instruction-count safety net in the current build. A Lua script with an infinite loop (<code>while true do end</code>) <strong>will hang the app</strong>. If this happens, force-quit and reopen MUDlark - long press to edit your world and turn off "auto-login on fresh connect", then select your world/mud and remove the offending program.</p>
+<p>Always use timers instead of <code>while</code> loops for repeated work:</p>
+<pre><code class="language-lua">-- Good: use a timer
+createTimer(&quot;MyLoop&quot;, 1, [[ send(&quot;score&quot;) ]], true)
+
+-- Bad: will hang the app
+while true do
+    send(&quot;score&quot;)
+end
+</code></pre>
+<h3 id="errors">Errors</h3>
+<p>Script errors appear as red lines in the main scrollback:</p>
+<pre><code>[Lua Error - Trigger:HealCheck] attempt to perform arithmetic on a nil value (global 'hp')
+</code></pre>
+<p>The format is <code>[Lua Error - &lt;source&gt;] &lt;message&gt;</code>. The source tells you which trigger, timer, or script caused the problem.</p>
+<hr />
+<h2 id="examples">Examples</h2>
+<h3 id="track-a-cooldown-with-vars">Track a cooldown with vars</h3>
+<pre><code class="language-lua">-- In a trigger: &quot;Your heal spell is ready.&quot;
+function healReady()
+    vars.healCooldown = &quot;false&quot;
+    cecho(&quot;{GREEN}Heal is ready!{RESET}&quot;)
+end
+healReady()
+</code></pre>
+<pre><code class="language-lua">-- In a trigger: &quot;You cast a healing spell.&quot;
+vars.healCooldown = &quot;true&quot;
+createTimer(&quot;HealCooldown&quot;, 10, [[
+    vars.healCooldown = &quot;false&quot;
+    cecho(&quot;{GREEN}Heal cooldown expired.{RESET}&quot;)
+    deleteTimer(&quot;HealCooldown&quot;)
+]], false)
+</code></pre>
+<hr />
+<h3 id="auto-loot-after-a-kill">Auto-loot after a kill</h3>
+<p>Pattern (simple): <code>* is dead.</code></p>
+<pre><code class="language-lua">local mob = matches[2]
+cecho(&quot;{YELLOW}&quot; .. mob .. &quot; is dead.{RESET}&quot;)
+send(&quot;get all &quot; .. mob)
+send(&quot;look&quot;)
+</code></pre>
+<hr />
+<h3 id="switch-triggers-between-combat-and-travel-modes">Switch triggers between combat and travel modes</h3>
+<p>Put this in a Script (Autorun on Connect):</p>
+<pre><code class="language-lua">function combatMode()
+    enableTrigger(&quot;AutoHeal&quot;)
+    enableTrigger(&quot;CombatRound&quot;)
+    disableTrigger(&quot;TravelPrompt&quot;)
+    cecho(&quot;{RED}[Combat mode]{RESET}&quot;)
+end
+
+function travelMode()
+    disableTrigger(&quot;AutoHeal&quot;)
+    disableTrigger(&quot;CombatRound&quot;)
+    enableTrigger(&quot;TravelPrompt&quot;)
+    cecho(&quot;{GREEN}[Travel mode]{RESET}&quot;)
+end
+</code></pre>
+<p>Then call <code>combatMode()</code> or <code>travelMode()</code> from any trigger or the console.</p>
+<hr />
+<h3 id="gmcp-react-to-room-changes">GMCP: react to room changes</h3>
+<pre><code class="language-lua">function gmcpHandler(package, json)
+    if package == &quot;Room.Info&quot; then
+        local roomName = json:match('&quot;name&quot;%s*:%s*&quot;([^&quot;]+)&quot;')
+        if roomName then
+            vars.currentRoom = roomName
+            appendToPanel(&quot;{CYAN}Room: &quot; .. roomName .. &quot;{RESET}&quot;)
+        end
+    end
+end
+</code></pre>
+<hr />
+<h3 id="repeating-heal-check-timer">Repeating heal check timer</h3>
+<p>Put this in a Script (Autorun on Connect):</p>
+<pre><code class="language-lua">createTimer(&quot;AutoHeal&quot;, 3, [[
+    local hp = tonumber(msdp.HEALTH) or 0
+    local maxHp = tonumber(msdp.MAX_HEALTH) or 1
+    if maxHp &gt; 0 and (hp / maxHp) &lt; 0.4 then
+        send(&quot;quaff healing&quot;)
+        cecho(&quot;{RED}[AutoHeal]{RESET} HP below 40%, healing!&quot;)
+    end
+]], true)
+</code></pre>
+<hr />
+<h3 id="inspect-any-value-in-the-console">Inspect any value in the console</h3>
+<pre><code>&gt; vars
+= table: 0x...
+&gt; vars.currentRoom
+= The Grand Market
+&gt; msdp.HEALTH
+= 87
+&gt; gmcp[&quot;Char.Vitals&quot;]
+= {&quot;hp&quot;:87,&quot;mp&quot;:52,&quot;sp&quot;:100}
+</code></pre>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="self-host.html">Self-Host</a>
+      <a href="support.html">Support</a>
+      <a href="privacy.html">Privacy Policy</a>
+    </div>
+    <p>&copy; 2026 Anthony Mace. MUDlark is not affiliated with any MUD server.</p>
+  </footer>
+
+</body>
+</html>

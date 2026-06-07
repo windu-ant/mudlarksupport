@@ -377,3 +377,67 @@ footer .footer-links {
     grid-template-columns: 1fr;
   }
 }
+
+/* Markdown documentation page */
+.markdown-doc h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.markdown-doc h2 {
+  margin-top: 2rem;
+}
+
+.markdown-doc h3 {
+  margin-top: 1.25rem;
+}
+
+.markdown-doc hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+.markdown-doc pre {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.markdown-doc code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.markdown-doc pre code {
+  font-size: 0.85rem;
+}
+
+.markdown-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+}
+
+.markdown-doc th,
+.markdown-doc td {
+  border: 1px solid var(--border);
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-doc th {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.markdown-doc blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.9rem;
+  margin: 1rem 0;
+}
