@@ -22,11 +22,6 @@
     </div>
   </nav>
 
-  <div class="hero">
-    <h1>Lua Scripting Guide</h1>
-    <p class="tagline">Full reference for scripting MUDlark worlds with Lua.</p>
-  </div>
-
   <div class="container">
     <section>
       <div class="markdown-doc">
@@ -36,25 +31,29 @@
 <h2 id="table-of-contents">Table of Contents</h2>
 <ol>
 <li><a href="#overview">Overview</a></li>
-<li><a href="#getting-started--scripts">Getting Started - Scripts</a></li>
+<li><a href="#getting-started-scripts">Getting Started - Scripts</a></li>
 <li><a href="#the-lua-console">The Lua Console</a></li>
 <li><a href="#lua-in-triggers">Lua in Triggers</a></li>
 <li><a href="#lua-in-timers">Lua in Timers</a></li>
 <li><a href="#lua-in-aliases">Lua in Aliases</a></li>
-<li><a href="#api-reference">API Reference</a>
-   - <a href="#sending-commands">Sending Commands</a>
-   - <a href="#output">Output</a>
-   - <a href="#trigger-control">Triggers</a>
-   - <a href="#timer-control">Timers</a>
-   - <a href="#alias-control">Aliases</a>
-   - <a href="#shortcut-pads">Shortcut Pads</a>
-   - <a href="#gmcp">GMCP</a>
-   - <a href="#info-panel--floating-windows">Info Panel &amp; Floating Windows</a></li>
-<li><a href="#built-in-variables">Built-in Variables</a>
-   - <a href="#line-and-matches">line and matches</a>
-   - <a href="#vars--persistent-variables">vars - Persistent Variables</a>
-   - <a href="#msdp--msdp-data">msdp - MSDP Data</a>
-   - <a href="#gmcp--gmcp-data">gmcp - GMCP Data</a></li>
+<li><a href="#api-reference">API Reference</a><ul>
+<li><a href="#sending-commands">Sending Commands</a></li>
+<li><a href="#output">Output</a></li>
+<li><a href="#trigger-control">Triggers</a></li>
+<li><a href="#timer-control">Timers</a></li>
+<li><a href="#alias-control">Aliases</a></li>
+<li><a href="#shortcut-pads">Shortcut Pads</a></li>
+<li><a href="#gmcp">GMCP</a></li>
+<li><a href="#info-panel-floating-windows">Info Panel &amp; Floating Windows</a></li>
+</ul>
+</li>
+<li><a href="#built-in-variables">Built-in Variables</a><ul>
+<li><a href="#line-and-matches">line and matches</a></li>
+<li><a href="#vars-persistent-variables">vars - Persistent Variables</a></li>
+<li><a href="#msdp-msdp-data">msdp - MSDP Data</a></li>
+<li><a href="#gmcp-gmcp-data">gmcp - GMCP Data</a></li>
+</ul>
+</li>
 <li><a href="#the-gmcp-event-handler">The GMCP Event Handler</a></li>
 <li><a href="#color-codes-in-cecho">Color Codes in cecho</a></li>
 <li><a href="#sandbox-and-limitations">Sandbox and Limitations</a></li>
@@ -81,9 +80,11 @@
 <li>Connect to (or just select) a world.</li>
 <li>Open the <strong>world menu</strong> (⋯ or gear icon) and tap <strong>Lua Scripts</strong>.</li>
 <li>Tap <strong>+</strong> to create a new script.</li>
-<li>Give it a name, paste or type your Lua source, and choose whether it should:
-   - <strong>Be enabled</strong> - disabled scripts are skipped entirely.
-   - <strong>Run automatically on connect</strong> - the script runs before triggers begin processing, so any functions or globals it defines are immediately available.</li>
+<li>Give it a name, paste or type your Lua source, and choose whether it should:<ul>
+<li><strong>Be enabled</strong> - disabled scripts are skipped entirely.</li>
+<li><strong>Run automatically on connect</strong> - the script runs before triggers begin processing, so any functions or globals it defines are immediately available.</li>
+</ul>
+</li>
 <li>Tap <strong>Save</strong>.</li>
 </ol>
 <h3 id="running-a-script-manually">Running a Script Manually</h3>
@@ -203,9 +204,11 @@ createTimer(&quot;PostConnect&quot;, 5, [[
 <hr />
 <h2 id="lua-in-aliases">Lua in Aliases</h2>
 <p>Aliases can optionally run a Lua script instead of sending their replacement text. Enable this by checking <strong>Run Lua script instead of sending replacement</strong> in the alias editor.</p>
-<p>When a Lua alias fires:
-- The replacement text is <strong>not</strong> sent to the server. Your Lua code is responsible for sending anything it needs to.
-- <code>matches[1]</code> is the full input line; <code>matches[2]</code>, <code>matches[3]</code>, etc. are the wildcard captures (same convention as triggers).</p>
+<p>When a Lua alias fires:</p>
+<ul>
+<li>The replacement text is <strong>not</strong> sent to the server. Your Lua code is responsible for sending anything it needs to.</li>
+<li><code>matches[1]</code> is the full input line; <code>matches[2]</code>, <code>matches[3]</code>, etc. are the wildcard captures (same convention as triggers).</li>
+</ul>
 <h3 id="example-a-smart-attack-alias">Example - a smart attack alias</h3>
 <p>Pattern: <code>att *</code></p>
 <pre><code class="language-lua">local target = matches[2]
