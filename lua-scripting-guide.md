@@ -18,6 +18,7 @@ MUDlark includes a built-in Lua scripting engine modelled closely after Mudlet. 
    - [Triggers](#trigger-control)
    - [Timers](#timer-control)
    - [Aliases](#alias-control)
+   - [Shortcut Pads](#shortcut-pads)
    - [GMCP](#gmcp)
    - [Info Panel & Floating Windows](#info-panel--floating-windows)
 8. [Built-in Variables](#built-in-variables)
@@ -322,6 +323,23 @@ deleteAlias(name)
 
 Enable, disable, or remove an alias by name.
 
+---
+
+### Shortcut Pads
+
+```lua
+switchPadSet(name)
+```
+
+Switches the visible shortcut pad layout to the pad set named `name`. Matching is case-insensitive. Returns `true` if the pad set exists and was activated, or `false` if no matching pad set was found.
+
+```lua
+if msdp.HEALTH and tonumber(msdp.HEALTH) < 40 then
+    switchPadSet("Emergency")
+else
+    switchPadSet("Combat")
+end
+```
 ---
 
 ### GMCP
