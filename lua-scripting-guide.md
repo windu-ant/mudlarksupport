@@ -448,9 +448,19 @@ appendToPanel(text)
 Appends to the right-side Info Panel. Color codes supported.
 
 ```lua
+clearPanel()
+```
+Clears the right-side Info Panel.
+
+```lua
 appendToFloatingWindow(index, text)
 ```
 Appends to floating window `index` (0 = Window 1, 1 = Window 2, 2 = Window 3, 3 = Window 4). Color codes supported.
+
+```lua
+clearFloatingWindow(index)
+```
+Clears floating window `index` (0 = Window 1, 1 = Window 2, 2 = Window 3, 3 = Window 4).
 
 ---
 
