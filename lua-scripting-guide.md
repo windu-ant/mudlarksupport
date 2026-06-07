@@ -7,7 +7,7 @@ MUDlark includes a built-in Lua scripting engine modelled closely after Mudlet. 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Getting Started — Scripts](#getting-started--scripts)
+2. [Getting Started - Scripts](#getting-started--scripts)
 3. [The Lua Console](#the-lua-console)
 4. [Lua in Triggers](#lua-in-triggers)
 5. [Lua in Timers](#lua-in-timers)
@@ -22,9 +22,9 @@ MUDlark includes a built-in Lua scripting engine modelled closely after Mudlet. 
    - [Info Panel & Floating Windows](#info-panel--floating-windows)
 8. [Built-in Variables](#built-in-variables)
    - [line and matches](#line-and-matches)
-   - [vars — Persistent Variables](#vars--persistent-variables)
-   - [msdp — MSDP Data](#msdp--msdp-data)
-   - [gmcp — GMCP Data](#gmcp--gmcp-data)
+   - [vars - Persistent Variables](#vars--persistent-variables)
+   - [msdp - MSDP Data](#msdp--msdp-data)
+   - [gmcp - GMCP Data](#gmcp--gmcp-data)
 9. [The GMCP Event Handler](#the-gmcp-event-handler)
 10. [Color Codes in cecho](#color-codes-in-cecho)
 11. [Sandbox and Limitations](#sandbox-and-limitations)
@@ -38,14 +38,14 @@ MUDlark runs a sandboxed Lua 5.4 VM per world connection. The engine:
 
 - Starts automatically when you connect to a world.
 - Runs any scripts marked **Autorun on Connect** before the first trigger can fire.
-- Shares one VM across all your scripts, triggers, timers, and aliases — so functions defined in a Script are available to your triggers.
+- Shares one VM across all your scripts, triggers, timers, and aliases - so functions defined in a Script are available to your triggers.
 - Tears down cleanly when you disconnect.
 
 The API follows Mudlet naming conventions where possible, so community resources and existing Mudlet scripts are a good reference even if they don't transfer 100%.
 
 ---
 
-## Getting Started — Scripts
+## Getting Started - Scripts
 
 Scripts are standalone Lua files tied to a world. Use them to define helper functions, set up initial state, or run any code that should run at connect time.
 
@@ -55,8 +55,8 @@ Scripts are standalone Lua files tied to a world. Use them to define helper func
 2. Open the **world menu** (⋯ or gear icon) and tap **Lua Scripts**.
 3. Tap **+** to create a new script.
 4. Give it a name, paste or type your Lua source, and choose whether it should:
-   - **Be enabled** — disabled scripts are skipped entirely.
-   - **Run automatically on connect** — the script runs before triggers begin processing, so any functions or globals it defines are immediately available.
+   - **Be enabled** - disabled scripts are skipped entirely.
+   - **Run automatically on connect** - the script runs before triggers begin processing, so any functions or globals it defines are immediately available.
 5. Tap **Save**.
 
 ### Running a Script Manually
@@ -71,7 +71,7 @@ Autorun scripts execute in the order they appear in the list (drag to reorder). 
 
 ## The Lua Console
 
-The Lua Console is an interactive REPL — type a Lua expression or statement, hit the send button, and see the result immediately. It shares the same VM as your scripts, so you can call functions you defined there, inspect `vars`, and test expressions before adding them to a trigger.
+The Lua Console is an interactive REPL - type a Lua expression or statement, hit the send button, and see the result immediately. It shares the same VM as your scripts, so you can call functions you defined there, inspect `vars`, and test expressions before adding them to a trigger.
 
 **Opening it:** world menu → **Lua Console**.
 
@@ -122,7 +122,7 @@ Any trigger action can be set to **Run Lua Script**. When the trigger fires, MUD
 
 > **Note:** MUDlark uses 1-based indexing for `matches`, the same as Mudlet. `matches[1]` is always the full match.
 
-### Example — announce health on a vitals line
+### Example - announce health on a vitals line
 
 Pattern: `Your health is * and your mana is *.` (simple pattern, two wildcards)
 
@@ -132,7 +132,7 @@ local mp = matches[3]
 echo("HP: " .. hp .. "  MP: " .. mp)
 ```
 
-### Example — enable a follow-up trigger when combat starts
+### Example - enable a follow-up trigger when combat starts
 
 Pattern: `You begin combat with *.` (regex: `You begin combat with (.+)\.`)
 
@@ -146,9 +146,9 @@ echo("{GREEN}Target: " .. vars.target .. "{RESET}")
 
 ## Lua in Timers
 
-Timer actions can also be set to **Run Lua Script**. The code runs on every tick. There is no `line` or `matches` context (timers aren't triggered by MUD output), but everything else — `vars`, `msdp`, `gmcp`, helper functions — is available.
+Timer actions can also be set to **Run Lua Script**. The code runs on every tick. There is no `line` or `matches` context (timers aren't triggered by MUD output), but everything else - `vars`, `msdp`, `gmcp`, helper functions - is available.
 
-### Example — send a keep-alive every 60 seconds
+### Example - send a keep-alive every 60 seconds
 
 Create a timer with interval **60 seconds** and one **Run Lua Script** action:
 
@@ -180,7 +180,7 @@ When a Lua alias fires:
 - The replacement text is **not** sent to the server. Your Lua code is responsible for sending anything it needs to.
 - `matches[1]` is the full input line; `matches[2]`, `matches[3]`, etc. are the wildcard captures (same convention as triggers).
 
-### Example — a smart attack alias
+### Example - a smart attack alias
 
 Pattern: `att *`
 
@@ -223,7 +223,7 @@ Prints plain text to the main scrollback as a system line (grey, no highlighting
 ```lua
 cecho(text)
 ```
-Prints colored text to the main scrollback. Supports MUDlark color codes — see [Color Codes in cecho](#color-codes-in-cecho).
+Prints colored text to the main scrollback. Supports MUDlark color codes - see [Color Codes in cecho](#color-codes-in-cecho).
 
 ```lua
 print(...)
@@ -233,7 +233,7 @@ Standard Lua `print`. MUDlark routes it through `echo()`, joining arguments with
 ```lua
 wait(seconds)
 ```
-Suspends the current script for `seconds` seconds (fractional values like `0.5` are fine), then resumes exactly where it left off. **Does not block the MUD** — the app remains fully responsive during the wait. Other triggers, timers, and even the same trigger firing again all continue to run independently.
+Suspends the current script for `seconds` seconds (fractional values like `0.5` are fine), then resumes exactly where it left off. **Does not block the MUD** - the app remains fully responsive during the wait. Other triggers, timers, and even the same trigger firing again all continue to run independently.
 
 > **Note:** `wait()` can only be used inside a trigger, timer, alias, or standalone script. Calling it in the Lua Console will produce an error.
 
@@ -338,7 +338,7 @@ sendGMCP("Char.Login", '{"name":"Elara","password":"hunter2"}')
 ```lua
 wait(seconds)
 ```
-Suspends the script for `seconds` seconds (fractions like `0.25` and `0.5` are supported), then resumes from the same point. The main thread is never blocked — the MUD client remains fully responsive during the wait, and multiple scripts can be waiting simultaneously without interfering with each other.
+Suspends the script for `seconds` seconds (fractions like `0.25` and `0.5` are supported), then resumes from the same point. The main thread is never blocked - the MUD client remains fully responsive during the wait, and multiple scripts can be waiting simultaneously without interfering with each other.
 
 ```lua
 -- Send three commands with a delay between each
@@ -355,7 +355,7 @@ send("say Refreshing!")
 
 ### Line Highlighting (selectString / fg / bg)
 
-These functions let you recolour specific text on the trigger line that fired the script — useful for highlighting important words without changing the rest of the line.
+These functions let you recolour specific text on the trigger line that fired the script - useful for highlighting important words without changing the rest of the line.
 
 ```lua
 selectString([windowName,] text, occurrence)
@@ -448,7 +448,7 @@ In timers and standalone scripts these are empty (`line = ""`, `matches = {}`).
 
 ---
 
-### vars — Persistent Variables
+### vars - Persistent Variables
 
 `vars` is a key-value table that persists across sessions for the current world. Use it to remember state between connects, share data between triggers, or track cooldowns.
 
@@ -468,7 +468,7 @@ Values are debounce-saved (2 seconds after the last write) so rapid mutations in
 
 ---
 
-### msdp — MSDP Data
+### msdp - MSDP Data
 
 `msdp` is a read-only table populated automatically from MSDP variables sent by the server. Variable names match exactly what the server sends (usually all-caps).
 
@@ -482,7 +482,7 @@ If the server sends a complex value (array or object), `msdp.<var>` contains the
 
 ---
 
-### gmcp — GMCP Data
+### gmcp - GMCP Data
 
 `gmcp` is a read-only table keyed by full GMCP package name. The value is the raw JSON string the server sent for that package.
 
@@ -519,7 +519,7 @@ end
 | `package` | GMCP package name, e.g. `"Char.Vitals"` |
 | `json` | Raw JSON string the server sent |
 
-The handler is called inside a `pcall` so a Lua error in your handler won't break GMCP processing — it will appear as a red error line instead.
+The handler is called inside a `pcall` so a Lua error in your handler won't break GMCP processing - it will appear as a red error line instead.
 
 ---
 
@@ -580,7 +580,7 @@ Each Lua VM is capped at **50 MB** of memory by default. You can adjust this in 
 
 ### Infinite loops
 
-There is no instruction-count safety net in the current build. A Lua script with an infinite loop (`while true do end`) **will hang the app**. If this happens, force-quit and reopen MUDlark — the world editor lets you edit or disable the offending script before reconnecting.
+There is no instruction-count safety net in the current build. A Lua script with an infinite loop (`while true do end`) **will hang the app**. If this happens, force-quit and reopen MUDlark - the world editor lets you edit or disable the offending script before reconnecting.
 
 Always use timers instead of `while` loops for repeated work:
 
