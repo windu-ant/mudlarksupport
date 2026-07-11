@@ -262,6 +262,9 @@ send(&quot;north&quot;)
 <pre><code class="language-lua">enableTrigger(name)
 disableTrigger(name)
 deleteTrigger(name)
+  
+enableTriggerFolder("Combat")
+disableTriggerFolder("Combat")
 </code></pre>
 <p>Enables, disables, or permanently removes the trigger with the given name. The name must match exactly what you typed in the trigger's <strong>Name</strong> field.</p>
 <hr />
@@ -269,6 +272,10 @@ deleteTrigger(name)
 <pre><code class="language-lua">enableTimer(name)
 disableTimer(name)
 deleteTimer(name)
+
+enableTimerFolder("Buffs")
+disableTimerFolder("Buffs")
+
 </code></pre>
 <p>Enables, disables, or removes a timer by name.</p>
 <pre><code class="language-lua">createTimer(name, intervalSeconds, code, repeating)
